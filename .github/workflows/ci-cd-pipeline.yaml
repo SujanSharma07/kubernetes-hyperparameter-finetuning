@@ -3,7 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main  # Trigger on pushes to the main branch
+      - master  # Trigger on pushes to the main branch
 
 jobs:
   build:
@@ -30,44 +30,44 @@ jobs:
         run: |
           docker push ghcr.io/${{ secrets.DOCKER_USERNAME }}/${{ secrets.MODEL_IMAGE_NAME }}:latest
 
-deploy:
-  runs-on: ubuntu-latest
-  needs: build
-  steps:
-    - name: Set up Kubeconfig
-      run: |
-        echo "${{ secrets.KUBE_CONFIG }}" > kubeconfig.yaml
-        export KUBECONFIG=kubeconfig.yaml
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Set up Kubeconfig
+        run: |
+          echo "${{ secrets.KUBE_CONFIG }}" > kubeconfig.yaml
+          export KUBECONFIG=kubeconfig.yaml
 
-    - name: Deploy Random Forest Jobs
-      run: |
-        set -e  # Exit on error
-        kubectl apply -f persistent-volume.yaml || exit 1
-        kubectl apply -f persistent-volume-claim.yaml || exit 1
-        kubectl apply -f job1.yaml || exit 1
-        kubectl apply -f job2.yaml || exit 1
-        kubectl apply -f job3.yaml || exit 1
+      - name: Deploy Random Forest Jobs
+        run: |
+          set -e  # Exit on error
+          kubectl apply -f persistent-volume.yaml || exit 1
+          kubectl apply -f persistent-volume-claim.yaml || exit 1
+          kubectl apply -f job1.yaml || exit 1
+          kubectl apply -f job2.yaml || exit 1
+          kubectl apply -f job3.yaml || exit 1
 
-    - name: Wait for Jobs to Complete
-      run: |
-        for job in random-forest-job-1 random-forest-job-2 random-forest-job-3; do
-          kubectl wait --for=condition=complete --timeout=600s job/$job || exit 1
-          # Print logs after job completion
-          echo "Logs for $job:"
-          kubectl logs job/$job || exit 1
-        done
-cleanup:
-  runs-on: ubuntu-latest
-  needs: deploy
-  if: success()  # Only run cleanup if the deploy step was successful
-  steps:
-    - name: Set up Kubeconfig
-      run: |
-        echo "${{ secrets.KUBE_CONFIG }}" > kubeconfig.yaml
-        export KUBECONFIG=kubeconfig.yaml
+      - name: Wait for Jobs to Complete
+        run: |
+          for job in random-forest-job-1 random-forest-job-2 random-forest-job-3; do
+            kubectl wait --for=condition=complete --timeout=600s job/$job || exit 1
+            # Print logs after job completion
+            echo "Logs for $job:"
+            kubectl logs job/$job || exit 1
+          done
+  cleanup:
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: success()  # Only run cleanup if the deploy step was successful
+    steps:
+      - name: Set up Kubeconfig
+        run: |
+          echo "${{ secrets.KUBE_CONFIG }}" > kubeconfig.yaml
+          export KUBECONFIG=kubeconfig.yaml
 
-    - name: Cleanup Old Jobs
-      run: |
-        kubectl delete job random-forest-job-1 || true
-        kubectl delete job random-forest-job-2 || true
-        kubectl delete job random-forest-job-3 || true
+      - name: Cleanup Old Jobs
+        run: |
+          kubectl delete job random-forest-job-1 || true
+          kubectl delete job random-forest-job-2 || true
+          kubectl delete job random-forest-job-3 || true
