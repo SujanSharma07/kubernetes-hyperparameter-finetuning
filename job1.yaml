@@ -1,0 +1,12 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: random-forest-job-1
+spec:
+  template:
+    spec:
+      containers:
+      - name: random-forest
+        image: ghcr.io/${{ secrets.DOCKER_USERNAME }}/${{ secrets.MODEL_IMAGE_NAME }}:${{ github.sha }}
+        args: ["--hyperparameters", "n_estimators=50,max_depth=5"]
+      restartPolicy: Never
