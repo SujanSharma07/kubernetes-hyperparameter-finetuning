@@ -1,0 +1,72 @@
+version: "3.7"
+services:
+  runner1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: localrunner:latest
+    environment:
+      REG_TOKEN: ${REG_TOKEN}
+      ACCESS_TOKEN: ${ACCESS_TOKEN}
+      REPO: ${REPO}
+      OWNER: ${OWNER}
+    container_name: github-runner-localrunner1
+    # hostname: ${DOCKERHOST_NAME}-localrunner1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/local/bin/docker
+    ports:
+      - 80:80
+  runner2:
+   build:
+     context: .
+     dockerfile: Dockerfile
+   image: localrunner:latest
+   environment:
+     REG_TOKEN: ${REG_TOKEN}
+     ACCESS_TOKEN: ${ACCESS_TOKEN}
+     REPO: ${REPO}
+     OWNER: ${OWNER}
+   container_name: github-runner-localrunner2
+   volumes:
+     - /var/run/docker.sock:/var/run/docker.sock
+     - /usr/bin/docker:/usr/local/bin/docker
+   ports:
+     - 8001:8001
+  runner3:
+   build:
+     context: .
+     dockerfile: Dockerfile
+   image: localrunner:latest
+   environment:
+     REG_TOKEN: ${REG_TOKEN}
+     ACCESS_TOKEN: ${ACCESS_TOKEN}
+     REPO: ${REPO}
+     OWNER: ${OWNER}
+   container_name: github-runner-localrunner3
+   volumes:
+     - /var/run/docker.sock:/var/run/docker.sock
+     - /usr/bin/docker:/usr/local/bin/docker
+  runner4:
+   build:
+     context: .
+     dockerfile: Dockerfile
+   image: localrunner:latest
+   environment:
+     REG_TOKEN: ${REG_TOKEN}
+     ACCESS_TOKEN: ${ACCESS_TOKEN}
+     REPO: ${REPO}
+     OWNER: ${OWNER}
+   container_name: github-runner-localrunner4
+   volumes:
+     - /var/run/docker.sock:/var/run/docker.sock
+     - /usr/bin/docker:/usr/local/bin/docker
+volumes:
+  localrunner1:
+    external: false
+  localrunner2:
+    external: false
+  localrunner3:
+    external: false
+  localrunner4:
+    external: false
