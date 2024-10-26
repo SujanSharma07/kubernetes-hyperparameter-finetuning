@@ -29,6 +29,9 @@ echo "Disabling Swap..."
 sudo swapoff -a
 sudo sed -i '/ swap / s/^/#/' /etc/fstab
 
+# For worker instance this much is enough
+# Use below codes for master instance only
+
 # Initialize the Kubernetes Cluster
 echo "Initializing the Kubernetes Cluster..."
 sudo kubeadm config images pull

@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: model-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: model-app
+  template:
+    metadata:
+      labels:
+        app: model-app
+    spec:
+      containers:
+        - name: model-container
+          image: ${DEPLOYMENT_DOCKER_IMAGE}  # Dynamic image for the model deployment script
+          command: ["python", "serve_model.py"]
+          volumeMounts:
+            - mountPath: "/models"
+              name: model-storage
+      volumes:
+        - name: model-storage
+          persistentVolumeClaim:
+            claimName: my-pvc

@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: model-selection-job
+spec:
+  template:
+    spec:
+      containers:
+        - name: model-selection
+          image: ${COMPARISION_DOCKER_IMAGE}  # Dynamic image for the model comparison script
+          command: ["python", "select_best_model.py"]
+          volumeMounts:
+            - mountPath: "/models"
+              name: model-storage
+      volumes:
+        - name: model-storage
+          persistentVolumeClaim:
+            claimName: my-pvc
+      restartPolicy: Never
+  backoffLimit: 4
