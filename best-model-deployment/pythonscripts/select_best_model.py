@@ -1,7 +1,9 @@
 import os
+import shutil
 
 # Directory where models and accuracy files are stored
 model_dir = "/models"
+best_model_path = os.path.join(model_dir, "best_model.pkl")
 
 best_accuracy = 0
 best_model = None
@@ -22,5 +24,9 @@ for filename in os.listdir(model_dir):
 
 if best_model:
     print(f"The best model is {best_model} with an accuracy of {best_accuracy}")
+
+    # Copy the best model to the desired location
+    shutil.copy(best_model, best_model_path)
+    print(f"Best model saved to {best_model_path}")
 else:
     print("No models found.")
