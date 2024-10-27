@@ -13,7 +13,7 @@ with open(model_path, "rb") as model_file:
 
 @app.route("/predict", methods=["POST"])
 def predict():
-    data = request.json
+    data = request.json()
     features = data.get("features")
 
     if features is None:

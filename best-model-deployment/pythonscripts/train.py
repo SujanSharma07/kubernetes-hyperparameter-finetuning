@@ -1,5 +1,6 @@
 import argparse
 import os
+import pickle  # Import pickle for model saving
 
 from sklearn.datasets import fetch_california_housing
 from sklearn.ensemble import RandomForestRegressor
@@ -32,17 +33,27 @@ model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 mse = mean_squared_error(y_test, y_pred)
 
-# Log the results to a file
+# Create directories for results and models
 result_dir = "/output"
+model_dir = "/models"
 os.makedirs(result_dir, exist_ok=True)
+os.makedirs(model_dir, exist_ok=True)
+
+# Save the model using pickle
+model_file = os.path.join(model_dir, f"model_{args.n_estimators}_{args.max_depth}.pkl")
+with open(model_file, "wb") as f:
+    pickle.dump(model, f)  # Save model to /models/ directory
+
+# Log the results to a file
 result_file = os.path.join(
     result_dir, f"result_{args.n_estimators}_{args.max_depth}.txt"
 )
-
 with open(result_file, "w") as f:
     f.write(
         f"Hyperparameters: n_estimators={args.n_estimators}, max_depth={args.max_depth}\n"
     )
     f.write(f"Mean Squared Error: {mse}\n")
+    f.write(f"Model saved at: {model_file}\n")
 
 print(f"Results written to {result_file}")
+print(f"Model saved to {model_file}")
