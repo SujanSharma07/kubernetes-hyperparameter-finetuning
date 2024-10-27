@@ -3,7 +3,7 @@ name: Model Training and Deployment Pipeline
 on:
   push:
     branches:
-      - main
+      - master
 
 env:
   K8S_CLUSTER_NAME: ${{ secrets.K8S_CLUSTER_NAME }}
@@ -68,9 +68,9 @@ jobs:
       - name: Launch training jobs
         run: |
           set -e  # Exit on error
-          kubectl apply -f persistent-volume.yaml
-          kubectl apply -f persistent-volume-claim.yaml
-          chmod +x ./launch_jobs.sh
+          kubectl apply -f k8s/persistent-volume.yaml
+          kubectl apply -f k8s/persistent-volume-claim.yaml
+          chmod +x ./scripts/launch_jobs.sh
           ./launch_jobs.sh
 
   select-model:
@@ -79,7 +79,7 @@ jobs:
     steps:
       - name: Run model selection
         run: |
-          envsubst < model-selection-job.yaml | kubectl apply -f -
+          envsubst < k8s/model-selection-job.yaml | kubectl apply -f -
 
       - name: Wait for model selection to complete
         run: kubectl wait --for=condition=complete job/model-selection-job
@@ -90,12 +90,12 @@ jobs:
     steps:
       - name: Deploy best model
         run: |
-          envsubst < deployment.yaml | kubectl apply -f -
+          envsubst < k8s/deployment.yaml | kubectl apply -f -
 
       - name: Apply Horizontal Pod Autoscaler
         run: |
-          kubectl apply -f load-balancer-service.yaml
-          kubectl apply -f hpa-config.yaml
+          kubectl apply -f k8s/load-balancer-service.yaml
+          kubectl apply -f k8s/hpa-config.yaml
  
       - name: Wait for deployment rollout
         run: kubectl rollout status deployment/model-deployment   # monitor the status of a Kubernetes deployment rollout to ensure that it successfully completes
