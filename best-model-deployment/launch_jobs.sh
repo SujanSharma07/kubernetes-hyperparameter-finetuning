@@ -5,7 +5,7 @@ if [ -z "$DOCKER_TRAIN_IMAGE" ]; then
   exit 1
 fi
 
-# Define hyperparameters to sweep over
+# hyperparameters
 estimators=(50 100 150)
 depths=(5 10 15)
 
