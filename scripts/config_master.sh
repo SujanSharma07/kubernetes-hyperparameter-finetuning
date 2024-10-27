@@ -45,3 +45,7 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 # Install a Pod Network
 echo "Installing a Pod Network..."
 kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+
+
+# Join Command
+# kubeadm token create --print-join-command

@@ -1,0 +1,40 @@
+# # Generate CA Certificate (One-Time Setup)
+# openssl genrsa -out ca.key 2048
+# openssl req -x509 -new -nodes -key ca.key -subj "/CN=kube-ca" -days 365 -out ca.crt
+
+# # 2. Generate User Key and Certificate Signing Request (CSR)
+# openssl genrsa -out client.key 2048
+# openssl req -new -key client.key -subj "/CN=my-user" -out client.csr
+
+# #3. Sign the CSR with the CA Certificate
+# openssl x509 -req -in client.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out client.crt -days 365
+
+# ca.crt — Certificate authority file for the cluster.
+# client.crt — Signed user certificate for authentication.
+# client.key — User’s private key.
+
+# # 4. Configure Kubernetes to Trust the CA Certificate
+# If you’re using kubeadm, this can be done in the /etc/kubernetes/manifests/kube-apiserver.yaml file:
+
+# - --client-ca-file=/path/to/ca.crt
+# Restart the API server to apply the changes.
+
+apiVersion: v1
+kind: Config
+clusters:
+- name: kubernetes
+  cluster:
+    server: <K8S_SERVER_URL>
+    certificate-authority-data: <BASE64_ENCODED_CA_CERT>
+contexts:
+- name: ci-context
+  context:
+    cluster: kubernetes
+    namespace: <namespace>
+    user: ci-cd-user
+users:
+- name: ci-cd-user
+  user:
+    client-certificate-data: <BASE64_ENCODED_CLIENT_CERT> # Encoded client cert
+    client-key-data: <BASE64_ENCODED_CLIENT_KEY>          # Encoded client key
+current-context: ci-context

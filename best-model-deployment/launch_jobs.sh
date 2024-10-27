@@ -5,29 +5,38 @@ if [ -z "$DOCKER_TRAIN_IMAGE" ]; then
   exit 1
 fi
 
-
 # Define hyperparameters to sweep over
 estimators=(50 100 150)
 depths=(5 10 15)
 
-for er in "${estimators[@]}"
-do
-    for dp in "${depths[@]}"
-    do
-        job_name="model-training-er${er}-dp${dp}"
+# Loop over hyperparameters and create job files
+for er in "${estimators[@]}"; do
+    for dp in "${depths[@]}"; do
+        job_name="model-training-er${er}-dp${dp}-$(date +%s)"
+        
+        # Generate the job YAML file
         cat <<EOF > ${job_name}.yaml
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: ${job_name}
 spec:
+  parallelism: 3  # Number of parallel pods per job
+  completions: 3  # Total number of pods to complete
   template:
     spec:
       containers:
         - name: model-container
-          image:  ${DOCKER_TRAIN_IMAGE}
+          image: ${DOCKER_TRAIN_IMAGE}
           command: ["python", "train.py"]
           args: ["--n_estimators", "${er}", "--max_depth", "${dp}"]
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
           volumeMounts:
             - mountPath: "/models"
               name: model-storage
@@ -38,7 +47,11 @@ spec:
       restartPolicy: Never
   backoffLimit: 4
 EOF
-        # Launch the job
+
+        # Apply the job YAML file
         kubectl apply -f ${job_name}.yaml
+
+        # Optionally, delete the YAML file to keep the workspace clean
+        rm ${job_name}.yaml
     done
 done

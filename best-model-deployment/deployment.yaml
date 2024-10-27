@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: model-deployment
+  labels:
+    app: model-app
 spec:
   replicas: 1
   selector:
@@ -14,11 +16,30 @@ spec:
     spec:
       containers:
         - name: model-container
-          image: ${DEPLOYMENT_DOCKER_IMAGE}  # Dynamic image for the model deployment script
+          image: ${DEPLOYMENT_DOCKER_IMAGE}  # Dynamic image for the model deployment
           command: ["python", "serve_model.py"]
           volumeMounts:
             - mountPath: "/models"
               name: model-storage
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080  # Ensure this port matches your application's exposed port
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080  # Ensure this port matches your application's exposed port
+            initialDelaySeconds: 15
+            periodSeconds: 10
       volumes:
         - name: model-storage
           persistentVolumeClaim:

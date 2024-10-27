@@ -1,0 +1,27 @@
+## Create a Service Account: 
+# kubectl create serviceaccount ci-cd-user -n <namespace>
+
+## Bind a Role to the Service Account
+# kubectl create rolebinding ci-cd-user-binding --clusterrole=edit --serviceaccount=<namespace>:ci-cd-user -n <namespace>
+
+## Extract the Token
+# TOKEN=$(kubectl -n <namespace> get secret $(kubectl -n <namespace> get sa/ci-cd-user -o jsonpath='{.secrets[0].name}') -o jsonpath='{.data.token}' | base64 --decode)
+
+apiVersion: v1
+kind: Config
+clusters:
+- name: kubernetes
+  cluster:
+    server: <K8S_SERVER_URL>
+    certificate-authority-data: <BASE64_ENCODED_CA_CERT> # Run `kubectl config view --flatten --minify` for CA data
+contexts:
+- name: ci-context
+  context:
+    cluster: kubernetes
+    namespace: <namespace>
+    user: ci-cd-user
+users:
+- name: ci-cd-user
+  user:
+    token: <SERVICE_ACCOUNT_TOKEN>
+current-context: ci-context

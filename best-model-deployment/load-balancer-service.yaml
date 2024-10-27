@@ -1,0 +1,14 @@
+# file that will act as a load balancer and distribute traffic across your application’s pods
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: model-service
+spec:
+  type: LoadBalancer  # Creates a load-balanced external IP for your application (if in a cloud environment)
+  selector:
+    app: model-app  # Selects pods with this label
+  ports:
+    - protocol: TCP
+      port: 80         # The port exposed by the service
+      targetPort: 8080 # Port the container listens on inside the pod (match with `serve_model.py` in your deployment)
