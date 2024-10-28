@@ -27,7 +27,7 @@ The primary goal of this pipeline is to provide a production-like environment wh
 │   ├── select_best_model.py           # Script to identify and save the best model
 │   ├── serve_model.py                 # Script to serve the selected model
 │   └── train.py                       # Script to train the model and log metrics
-├── report.docx                        # Documentation or report file on the pipeline
+├── report.pdf                        # Documentation or report file on the pipeline
 ├── scripts/
 │   ├── config_master.sh               # Script to configure the K8s master node
 │   └── launch_jobs.sh                 # Script to launch training and selection jobs
