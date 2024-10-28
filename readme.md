@@ -8,7 +8,9 @@ The primary goal of this pipeline is to provide a production-like environment wh
 
 ## Repository Structure
 
-```├── dockerfiles/
+```
+
+├── dockerfiles/
 │   ├── Dockerfile-best-model          # Dockerfile for model selection container
 │   ├── Dockerfile-deploy              # Dockerfile for model deployment container
 │   └── Dockerfile-train               # Dockerfile for model training container
